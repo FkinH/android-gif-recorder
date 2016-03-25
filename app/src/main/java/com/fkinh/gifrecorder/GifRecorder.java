@@ -16,9 +16,13 @@
 
 package com.fkinh.gifrecorder;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -57,6 +61,14 @@ public class GifRecorder extends Thread {
         this.encoder = new AnimatedGifEncoder();
     }
 
+    public void setDelay(long delay){
+        this.delay = delay;
+    }
+
+    public AnimatedGifEncoder getEncoder(){
+        return encoder;
+    }
+
     @Override
     public void run() {
         try {
@@ -70,7 +82,7 @@ public class GifRecorder extends Thread {
         busy.set(true);
         encoder.start(new BufferedOutputStream(new FileOutputStream(new File(path))));
         while (busy.get()){
-            encoder.addFrame(Screenshot.getScreenshot(0.3f));
+            encoder.addFrame(Screenshot.getDecodedScreenshot(0.3f, Bitmap.CompressFormat.JPEG, 50));
             try {
                 Thread.sleep(delay);
             } catch (InterruptedException e) {

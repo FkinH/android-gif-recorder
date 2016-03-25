@@ -1,8 +1,10 @@
 package com.fkinh.gifrecorder;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,10 +13,26 @@ import java.util.Arrays;
 
 public class Screenshot {
 
+    public static Bitmap getDecodedScreenshot(float scale, Bitmap.CompressFormat format, int quality){
+        Bitmap origin = getScreenshot(scale);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        if (origin != null) {
+            origin.compress(format, quality, out);
+            Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return decoded;
+        }
+        return null;
+    }
+
     public static Bitmap getScreenshot(float scale) {
+        ByteArrayOutputStream ous = new ByteArrayOutputStream();
         try {
             InputStream raw = Runtime.getRuntime().exec("screencap").getInputStream();
-            ByteArrayOutputStream ous = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024 * 100];
             int read = 0;
             while ((read = raw.read(buffer, 0, buffer.length)) != -1) {
@@ -24,6 +42,12 @@ public class Screenshot {
             return bitmap(buffer, scale);
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                ous.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
