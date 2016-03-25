@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(recorder == null){
                     recorder = new GifRecorder();
+                    recorder.setLowQualityMode();
                     recorder.start();
                     Snackbar.make(view, "start", Snackbar.LENGTH_SHORT)
                             .setAction("Action", null).show();

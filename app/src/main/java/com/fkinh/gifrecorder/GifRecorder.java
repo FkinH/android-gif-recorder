@@ -19,6 +19,7 @@ package com.fkinh.gifrecorder;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -44,15 +45,11 @@ public class GifRecorder extends Thread {
     private AtomicBoolean busy = new AtomicBoolean(false);
 
     public GifRecorder(){
-        this.delay = 500;
-        this.path = Environment.getExternalStorageDirectory().getAbsolutePath().concat("/test.gif");
-        this.encoder = new AnimatedGifEncoder();
+        this(Environment.getExternalStorageDirectory().getAbsolutePath().concat("/test.gif"), 500);
     }
 
     public GifRecorder(String path){
-        this.delay = 5000;
-        this.path = path;
-        this.encoder = new AnimatedGifEncoder();
+        this(path, 500);
     }
 
     public GifRecorder(String path, long delay){
@@ -69,6 +66,11 @@ public class GifRecorder extends Thread {
         return encoder;
     }
 
+    public void setLowQualityMode(){
+        encoder.setDelay(500);
+        encoder.setQuality(5);
+    }
+
     @Override
     public void run() {
         try {
@@ -82,12 +84,18 @@ public class GifRecorder extends Thread {
         busy.set(true);
         encoder.start(new BufferedOutputStream(new FileOutputStream(new File(path))));
         while (busy.get()){
-            encoder.addFrame(Screenshot.getDecodedScreenshot(0.3f, Bitmap.CompressFormat.JPEG, 50));
+            long start = System.currentTimeMillis();
+            Bitmap bmp = Screenshot.getDecodedScreenshot(0.3f, Bitmap.CompressFormat.JPEG, 50);
+            encoder.addFrame(bmp);
             try {
                 Thread.sleep(delay);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            if (bmp != null) {
+                bmp.recycle();
+            }
+            Log.i("SCREENSHOT", "it takes " + start + "ms to get last screenshot.");
         }
         encoder.finish();
     }

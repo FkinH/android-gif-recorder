@@ -29,6 +29,11 @@ public class Screenshot {
         return null;
     }
 
+    /**
+     * root way to get screenshot
+     * @param scale
+     * @return screenshot bitmap
+     */
     public static Bitmap getScreenshot(float scale) {
         ByteArrayOutputStream ous = new ByteArrayOutputStream();
         try {
