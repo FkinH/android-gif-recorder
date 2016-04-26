@@ -30,8 +30,8 @@ import java.io.FileOutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Author: jinghao
- * Email: jinghao@meizu.com
+ * Author: fkinh
+ * Email: fkinh26@gmail.com
  * Date: 2016-03-23
  */
 public class GifRecorder extends Thread {
