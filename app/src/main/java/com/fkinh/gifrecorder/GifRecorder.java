@@ -58,6 +58,10 @@ public class GifRecorder extends Thread {
         this.encoder = new AnimatedGifEncoder();
     }
 
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     public void setDelay(long delay){
         this.delay = delay;
     }
@@ -80,22 +84,22 @@ public class GifRecorder extends Thread {
         }
     }
 
-    private void record() throws FileNotFoundException {
+    private synchronized void record() throws FileNotFoundException {
         busy.set(true);
         encoder.start(new BufferedOutputStream(new FileOutputStream(new File(path))));
         while (busy.get()){
             long start = System.currentTimeMillis();
             Bitmap bmp = Screenshot.getDecodedScreenshot(0.3f, Bitmap.CompressFormat.JPEG, 50);
             encoder.addFrame(bmp);
-            try {
-                Thread.sleep(delay);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(delay);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
             if (bmp != null) {
                 bmp.recycle();
             }
-            Log.i("SCREENSHOT", "it takes " + start + "ms to get last screenshot.");
+            Log.i("SCREENSHOT", "it takes " + (System.currentTimeMillis() - start) + "ms to get last screenshot.");
         }
         encoder.finish();
     }
@@ -103,6 +107,10 @@ public class GifRecorder extends Thread {
     public void release(boolean save){
         if(encoder != null){
             busy.set(false);
+        }
+        if (!save) {
+            File mp4 = new File(path);
+            mp4.delete();
         }
     }
 
